@@ -269,9 +269,9 @@ public class DrawingCanvas : MonoBehaviour
             generatedTexture.Apply();
             
             // Double-check texture is assigned to material
-            if (material != null && material.GetTexture("_BaseMap") != generatedTexture)
+            if (material != null && material.GetTexture("_MainTex") != generatedTexture)
             {
-                material.SetTexture("_BaseMap", generatedTexture);
+                material.SetTexture("_MainTex", generatedTexture);
             }
         }
     }
