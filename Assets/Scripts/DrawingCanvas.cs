@@ -26,7 +26,6 @@ public class DrawingCanvas : MonoBehaviour
         // Check if corners are set
         if (topLeftCorner == null || botRightCorner == null)
         {
-            Debug.LogError("Canvas corners not set! Please assign topLeftCorner and botRightCorner.");
             return;
         }
         
@@ -54,79 +53,35 @@ public class DrawingCanvas : MonoBehaviour
         Debug.Log($"Corner difference: X={cornerDiff.x}, Y={cornerDiff.y}, Z={cornerDiff.z}");
         
         // Determine which plane the canvas is on by finding the smallest component
-        float absX = Mathf.Abs(cornerDiff.x);
         float absY = Mathf.Abs(cornerDiff.y);
         float absZ = Mathf.Abs(cornerDiff.z);
         
         int width, height;
         Vector3 widthDir, heightDir;
         
-        // Find the two largest dimensions to use as width/height
-        if (absX <= absY && absX <= absZ)
-        {
-            // X is smallest, so canvas is primarily in Y-Z plane
-            width = totalXPixels;
-            height = totalYPixels;
-            widthDir = new Vector3(0, 0, 1);  // Z is width
-            heightDir = new Vector3(0, 1, 0); // Y is height
-            
-            // Calculate multipliers for Y-Z plane
-            xMult = width / Mathf.Max(0.001f, absZ);  // Z is width
-            yMult = height / Mathf.Max(0.001f, absY); // Y is height
-            canvasNormal = new Vector3(1, 0, 0);      // X is normal
-            
-            Debug.Log("Canvas is in Y-Z plane");
-        }
-        else if (absY <= absX && absY <= absZ)
-        {
-            // Y is smallest, so canvas is primarily in X-Z plane
-            width = totalXPixels;
-            height = totalYPixels;
-            widthDir = new Vector3(1, 0, 0);  // X is width
-            heightDir = new Vector3(0, 0, 1); // Z is height
-            
-            // Calculate multipliers for X-Z plane
-            xMult = width / Mathf.Max(0.001f, absX);  // X is width
-            yMult = height / Mathf.Max(0.001f, absZ); // Z is height
-            canvasNormal = new Vector3(0, 1, 0);      // Y is normal
-            
-            Debug.Log("Canvas is in X-Z plane");
-        }
-        else
-        {
-            // Z is smallest, so canvas is primarily in X-Y plane
-            width = totalXPixels;
-            height = totalYPixels;
-            widthDir = new Vector3(1, 0, 0);  // X is width
-            heightDir = new Vector3(0, 1, 0); // Y is height
-            
-            // Calculate multipliers for X-Y plane
-            xMult = width / Mathf.Max(0.001f, absX);  // X is width
-            yMult = height / Mathf.Max(0.001f, absY); // Y is height
-            canvasNormal = new Vector3(0, 0, 1);      // Z is normal
-            
-            Debug.Log("Canvas is in X-Y plane");
-        }
+        width = totalXPixels;
+        height = totalYPixels;
+        widthDir = new Vector3(0, 0, 1);  // Z is width
+        heightDir = new Vector3(0, 1, 0); // Y is height
+        
+        // Calculate multipliers for Y-Z plane
+        xMult = width / Mathf.Max(0.001f, absZ);  // Z is width
+        yMult = height / Mathf.Max(0.001f, absY); // Y is height
+        canvasNormal = new Vector3(1, 0, 0);      // X is normal
         
         // Ensure multipliers are reasonable (limit to 1000 max)
         if (xMult > 1000f)
         {
-            Debug.LogWarning($"X multiplier ({xMult}) is too high, limiting to 1000");
             xMult = 1000f;
         }
         
         if (yMult > 1000f)
         {
-            Debug.LogWarning($"Y multiplier ({yMult}) is too high, limiting to 1000");
             yMult = 1000f;
         }
         
         // Create a plane for the canvas
         canvasPlane = new Plane(canvasNormal, topLeftCorner.position);
-        
-        Debug.Log($"Canvas initialized: {totalXPixels}x{totalYPixels}");
-        Debug.Log($"Canvas normal: {canvasNormal}");
-        Debug.Log($"Coordinate multipliers: X={xMult}, Y={yMult}");
         
         // Apply the texture to make sure it's visible
         UpdateTexture();
@@ -142,8 +97,6 @@ public class DrawingCanvas : MonoBehaviour
         int xPixel = Mathf.RoundToInt(pixelCoord.x);
         int yPixel = Mathf.RoundToInt(pixelCoord.y);
         
-        Debug.Log($"Drawing at world position: {worldPos}, pixel: ({xPixel}, {yPixel})");
-        
         // Draw at the calculated pixel position
         Draw(xPixel, yPixel, color, size);
     }
@@ -157,31 +110,11 @@ public class DrawingCanvas : MonoBehaviour
         Vector3 localPos = worldPos - topLeftCorner.position;
         Vector3 cornerDiff = botRightCorner.position - topLeftCorner.position;
         
-        float absX = Mathf.Abs(cornerDiff.x);
-        float absY = Mathf.Abs(cornerDiff.y);
-        float absZ = Mathf.Abs(cornerDiff.z);
-        
         float x, y;
-        
-        // Determine pixel coordinates based on canvas orientation
-        if (absX <= absY && absX <= absZ)
-        {
-            // Canvas is in Y-Z plane (X is normal)
-            x = Mathf.Abs(localPos.z) * xMult;
-            y = Mathf.Abs(localPos.y) * yMult;
-        }
-        else if (absY <= absX && absY <= absZ)
-        {
-            // Canvas is in X-Z plane (Y is normal)
-            x = Mathf.Abs(localPos.x) * xMult;
-            y = Mathf.Abs(localPos.z) * yMult;
-        }
-        else
-        {
-            // Canvas is in X-Y plane (Z is normal)
-            x = Mathf.Abs(localPos.x) * xMult;
-            y = Mathf.Abs(localPos.y) * yMult;
-        }
+
+        // Canvas is in Y-Z plane (X is normal)
+        x = Mathf.Abs(localPos.z) * xMult;
+        y = Mathf.Abs(localPos.y) * yMult;
         
         // Ensure we're within canvas boundaries
         x = Mathf.Clamp(x, 0, totalXPixels - 1);
@@ -240,8 +173,6 @@ public class DrawingCanvas : MonoBehaviour
         float distance = Vector3.Distance(fromPos, toPos);
         int steps = Mathf.CeilToInt(distance * 10); // Adjust multiplier for density
         
-        Debug.Log($"Drawing line from {fromPos} to {toPos} with {steps} steps");
-        
         if (steps > 1)
         {
             for (int i = 0; i <= steps; i++)
@@ -289,33 +220,5 @@ public class DrawingCanvas : MonoBehaviour
         }
         
         UpdateTexture();
-    }
-    
-    /// <summary>
-    /// Debug function to visualize the canvas corners and normal
-    /// </summary>
-    private void OnDrawGizmos()
-    {
-        if (topLeftCorner != null && botRightCorner != null)
-        {
-            // Draw corners
-            Gizmos.color = Color.red;
-            Gizmos.DrawSphere(topLeftCorner.position, 0.01f);
-            
-            Gizmos.color = Color.blue;
-            Gizmos.DrawSphere(botRightCorner.position, 0.01f);
-            
-            // Connect corners with diagonal line
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(topLeftCorner.position, botRightCorner.position);
-            
-            // Draw a grid representation of the canvas if in play mode
-            if (Application.isPlaying && canvasNormal != Vector3.zero)
-            {
-                Vector3 center = (topLeftCorner.position + botRightCorner.position) * 0.5f;
-                Gizmos.color = Color.green;
-                Gizmos.DrawRay(center, canvasNormal * 0.1f);
-            }
-        }
     }
 }
