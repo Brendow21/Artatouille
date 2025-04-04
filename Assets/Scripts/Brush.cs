@@ -1,8 +1,7 @@
 using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 /// <summary>
-/// Basic brush implementation for VR drawing.
+/// Simplified brush for VR drawing with reliable collision detection.
 /// </summary>
 public class Brush : MonoBehaviour
 {
@@ -12,195 +11,80 @@ public class Brush : MonoBehaviour
     
     [Header("Brush Setup")]
     public Transform brushTip;
-    public XRGrabInteractable grabInteractable;
     public LayerMask canvasLayer;
-    public float drawDistance = 0.02f; // Max distance from canvas to draw
+    public float detectionRadius = 0.02f;
+    public float rayDistance = 0.1f;
     
     // State tracking
-    protected bool isGrabbed = false;
-    protected Vector3 lastContactPoint;
-    protected DrawingCanvas lastCanvas;
-    protected bool isDrawing = false;
+    private Vector3 lastContactPoint;
+    private DrawingCanvas currentCanvas;
+    private bool isDrawing = false;
     
-    protected virtual void Start()
+    private void Start()
     {
-        // Setup grab interactable
-        if (grabInteractable == null)
-        {
-            grabInteractable = GetComponent<XRGrabInteractable>();
-        }
-        
-        if (grabInteractable != null)
-        {
-            // Track when brush is grabbed/released
-            grabInteractable.selectEntered.AddListener((args) => {
-                isGrabbed = true;
-                Debug.Log("Brush grabbed");
-            });
-            
-            grabInteractable.selectExited.AddListener((args) => {
-                isGrabbed = false;
-                lastCanvas = null;
-                isDrawing = false;
-                Debug.Log("Brush released");
-            });
-        }
-        
-        // Make sure brush tip exists
         if (brushTip == null)
         {
             brushTip = new GameObject("BrushTip").transform;
             brushTip.SetParent(transform);
             brushTip.localPosition = new Vector3(0, 0, 0.1f);
         }
-        
-        // Add a visual indicator for the brush tip
-        GameObject visualTip = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        visualTip.transform.SetParent(brushTip);
-        visualTip.transform.localPosition = Vector3.zero;
-        visualTip.transform.localScale = Vector3.one * 0.02f;
-        Destroy(visualTip.GetComponent<Collider>());
-        
-        // Use a shared material to avoid shader errors
-        Renderer renderer = visualTip.GetComponent<Renderer>();
-        if (renderer != null)
-        {
-            // Try to set the material color without creating a new material
-            if (renderer.material != null)
-            {
-                renderer.material.color = brushColor;
-            }
-        }
-        
-        Debug.Log("Brush initialized");
     }
     
-    protected virtual void Update()
+    private void Update()
     {
-        if (!isGrabbed) return;
-        
-        // Simple sphere overlap check for any canvas colliders
-        Collider[] hitColliders = Physics.OverlapSphere(brushTip.position, 0.015f, canvasLayer);
-        
-        bool foundCanvas = false;
-        foreach (var hitCollider in hitColliders)
+        bool canvasDetected = false;
+        Vector3 contactPoint = Vector3.zero;
+        DrawingCanvas canvas = null;
+        if (Physics.CheckSphere(brushTip.position, detectionRadius, canvasLayer))
         {
-            DrawingCanvas canvas = hitCollider.GetComponent<DrawingCanvas>();
-            if (canvas != null)
+            // Find the closest canvas in range
+            Collider[] colliders = Physics.OverlapSphere(brushTip.position, detectionRadius, canvasLayer);
+            
+            // Process the closest collider
+            if (colliders.Length > 0)
             {
-                // Find the closest point on the collider surface
-                Vector3 contactPoint = hitCollider.ClosestPoint(brushTip.position);
+                Collider closestCollider = colliders[0];
+                canvas = closestCollider.GetComponent<DrawingCanvas>();
                 
-                // Visual debugging
-                Debug.DrawLine(brushTip.position, contactPoint, Color.green, Time.deltaTime);
-                
-                if (!isDrawing || lastCanvas != canvas)
-                {
-                    // First contact with this canvas
-                    lastCanvas = canvas;
-                    lastContactPoint = contactPoint;
-                    isDrawing = true;
-                    Debug.Log("First contact with canvas at " + contactPoint);
-                    
-                    // Draw first point
-                    canvas.DrawAtPosition(contactPoint, brushColor, brushSize);
-                }
-                else
-                {
-                    // Only draw if moved enough
-                    if (Vector3.Distance(lastContactPoint, contactPoint) > 0.002f)
-                    {
-                        // Draw line between points
-                        canvas.DrawLine(lastContactPoint, contactPoint, brushColor, brushSize);
-                        lastContactPoint = contactPoint;
-                    }
-                }
-                
-                foundCanvas = true;
-                break; // Only use the first canvas found
-            }
-        }
-        
-        // If no canvas was found this frame, but we were drawing
-        if (!foundCanvas && isDrawing)
-        {
-            isDrawing = false;
-            Debug.Log("Lost contact with canvas");
-        }
-        
-        // Alternative approach: Raycast in multiple directions around the brush tip
-        if (!foundCanvas)
-        {
-            RaycastMultipleDirections();
-        }
-    }
-    
-    /// <summary>
-    /// Perform raycasts in multiple directions to try to hit a canvas
-    /// </summary>
-    private void RaycastMultipleDirections()
-    {
-        // Define multiple directions to try
-        Vector3[] directions = new Vector3[] {
-            brushTip.forward,
-            -brushTip.forward,
-            brushTip.up,
-            -brushTip.up,
-            brushTip.right,
-            -brushTip.right
-        };
-        
-        // Try each direction
-        foreach (Vector3 dir in directions)
-        {
-            RaycastHit hit;
-            if (Physics.Raycast(brushTip.position, dir, out hit, drawDistance, canvasLayer))
-            {
-                DrawingCanvas canvas = hit.collider.GetComponent<DrawingCanvas>();
                 if (canvas != null)
                 {
-                    // Visual debugging
-                    Debug.DrawLine(brushTip.position, hit.point, Color.green, Time.deltaTime);
-                    Debug.DrawRay(hit.point, hit.normal * 0.03f, Color.blue, Time.deltaTime);
-                    
-                    if (!isDrawing || lastCanvas != canvas)
-                    {
-                        // First contact with this canvas
-                        lastCanvas = canvas;
-                        lastContactPoint = hit.point;
-                        isDrawing = true;
-                        Debug.Log($"First contact with canvas using raycast in direction {dir}");
-                        
-                        // Draw first point
-                        canvas.DrawAtPosition(hit.point, brushColor, brushSize);
-                    }
-                    else
-                    {
-                        // Only draw if moved enough
-                        if (Vector3.Distance(lastContactPoint, hit.point) > 0.002f)
-                        {
-                            // Draw line between points
-                            canvas.DrawLine(lastContactPoint, hit.point, brushColor, brushSize);
-                            lastContactPoint = hit.point;
-                        }
-                    }
-                    
-                    return; // Stop after finding one hit
+                    canvasDetected = true;
+                    contactPoint = closestCollider.ClosestPoint(brushTip.position);
                 }
             }
         }
-    }
-    
-    /// <summary>
-    /// For debug visualization
-    /// </summary>
-    private void OnDrawGizmos()
-    {
-        if (brushTip != null)
+        
+        if (canvasDetected && canvas != null)
         {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(brushTip.position, 0.015f);
-            Gizmos.DrawRay(brushTip.position, brushTip.forward * 0.05f);
+            if (!isDrawing || currentCanvas != canvas)
+            {
+                // First contact with this canvas
+                currentCanvas = canvas;
+                lastContactPoint = contactPoint;
+                isDrawing = true;
+                
+                // Draw initial point
+                canvas.DrawAtPosition(contactPoint, brushColor, brushSize);
+            }
+            else
+            {
+                // Only draw if we've moved enough
+                float distance = Vector3.Distance(lastContactPoint, contactPoint);
+                float minDistance = 0.0005f; // Small threshold for smoother lines
+                
+                if (distance > minDistance)
+                {
+                    // Draw line between points
+                    canvas.DrawLine(lastContactPoint, contactPoint, brushColor, brushSize);
+                    lastContactPoint = contactPoint;
+                }
+            }
+        }
+        else if (isDrawing)
+        {
+            // Lost contact with canvas
+            isDrawing = false;
+            currentCanvas = null;
         }
     }
 }
