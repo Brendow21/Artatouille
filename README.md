@@ -3,3 +3,4 @@
 
 ### Requirements
 1. Unity version: 6000.0.34f1
+2. Meta Quest Headset
