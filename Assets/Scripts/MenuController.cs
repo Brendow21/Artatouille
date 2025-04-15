@@ -20,4 +20,10 @@ public class MenuController : MonoBehaviour
     {
         panel.SetActive(!panel.activeSelf);
     }
+
+    public void ClosePanel(GameObject panel)
+    {
+        panel.SetActive(false);
+    }
+
 }
