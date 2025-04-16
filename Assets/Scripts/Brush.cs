@@ -87,4 +87,33 @@ public class Brush : MonoBehaviour
             currentCanvas = null;
         }
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        string objName = other.gameObject.name.ToLower();
+
+        switch (objName)
+        {
+            case "red":
+                brushColor = Color.red;
+                break;
+            case "green":
+                brushColor = Color.green;
+                break;
+            case "blue":
+                brushColor = Color.blue;
+                break;
+            case "yellow":
+                brushColor = Color.yellow;
+                break;
+            case "black":
+                brushColor = Color.black;
+                break;
+            case "white":
+                brushColor = Color.white;
+                break;
+            default:
+                break;
+        }
+    }
 }
