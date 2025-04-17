@@ -72,12 +72,12 @@ public class DrawingCanvas : MonoBehaviour
     private Vector2 GetNormalizedPositionOnCanvas(Vector3 localPos)
     {
         // Canvas dimensions based on scale
-        float halfWidth = 0.5f;  // Half of local scale X=1
-        float halfHeight = 0.75f; // Half of local scale Y=1.5
+        float width = transform.localScale.x;
+        float height = transform.localScale.y;
         
         // Map from local space to texture space (0 to 1)
-        float normalizedX = (localPos.x + halfWidth) / (halfWidth * 2);
-        float normalizedY = (localPos.y + halfHeight) / (halfHeight * 2);
+        float normalizedX = (localPos.x + width / 2f) / width;
+        float normalizedY = (localPos.y + height / 2f) / height;
         
         // Fix for X-axis reflection issue
         normalizedX = 1.0f - normalizedX;

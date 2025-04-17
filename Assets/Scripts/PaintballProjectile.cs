@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class PaintballProjectile : MonoBehaviour
 {
     public Color paintColor = Color.blue;
@@ -7,24 +8,34 @@ public class PaintballProjectile : MonoBehaviour
     public AudioClip splatSound;
     public float volume = 1f;
 
+    private void Start()
+    {
+        // Prevent missing collisions for fast projectiles
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+        }
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
-        DrawingCanvas canvas = collision.collider.GetComponent<DrawingCanvas>();
+        ContactPoint contact = collision.contacts[0];
+        Vector3 hitPoint = contact.point;
 
+        // Try to paint on a canvas
+        DrawingCanvas canvas = collision.collider.GetComponent<DrawingCanvas>();
         if (canvas != null)
         {
-            // Paint at collision point
-            Vector3 hitPoint = collision.contacts[0].point;
             canvas.DrawAtPosition(hitPoint, paintColor, brushSize);
         }
 
-        // Play splat sound at collision point
+        // Play splat sound
         if (splatSound != null)
         {
-            AudioSource.PlayClipAtPoint(splatSound, transform.position, volume);
+            AudioSource.PlayClipAtPoint(splatSound, hitPoint, volume);
         }
 
-        // Destroy the projectile
         Destroy(gameObject);
     }
 }
