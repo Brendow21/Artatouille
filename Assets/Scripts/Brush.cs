@@ -112,6 +112,12 @@ public class Brush : MonoBehaviour
             case "white":
                 brushColor = Color.white;
                 break;
+            case "purple":
+                brushColor = Color.magenta;
+                break;
+            case "grey":
+                brushColor = Color.grey;
+                break;
             default:
                 break;
         }
