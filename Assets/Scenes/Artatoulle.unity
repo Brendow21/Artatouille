@@ -229,7 +229,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f3a390c40c7c4194a309890e6433f54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  brushSize: 2
+  brushSize: 3
   brushColor: {r: 0.21568629, g: 0.21568629, b: 0.21568629, a: 1}
   brushTip: {fileID: 281886253}
   canvasLayer:
@@ -5588,7 +5588,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7f24bcac3f9faa8458cbdbf391a7d3cb, type: 3}
       propertyPath: m_LocalScale.z
-      value: 20
+      value: 28.7
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7f24bcac3f9faa8458cbdbf391a7d3cb, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5596,7 +5596,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7f24bcac3f9faa8458cbdbf391a7d3cb, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.6869999
+      value: 0.977
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7f24bcac3f9faa8458cbdbf391a7d3cb, type: 3}
       propertyPath: m_LocalPosition.z
@@ -5949,13 +5949,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f3a390c40c7c4194a309890e6433f54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  brushSize: 6
-  brushColor: {r: 1, g: 0, b: 0, a: 1}
+  brushSize: 8
+  brushColor: {r: 0, g: 0.028357267, b: 1, a: 1}
   brushTip: {fileID: 1073639080}
   canvasLayer:
     serializedVersion: 2
     m_Bits: 64
-  detectionRadius: 0.02
+  detectionRadius: 0.1
   rayDistance: 0.1
 --- !u!65 &1711658767
 BoxCollider:
@@ -6166,15 +6166,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5799580975468153171, guid: 427f3a066e82747cc96d394bf9121bb3, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.426
+      value: -3.429
       objectReference: {fileID: 0}
     - target: {fileID: 5799580975468153171, guid: 427f3a066e82747cc96d394bf9121bb3, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.866
+      value: 1.03
       objectReference: {fileID: 0}
     - target: {fileID: 5799580975468153171, guid: 427f3a066e82747cc96d394bf9121bb3, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 4.586
+      value: 4.591
       objectReference: {fileID: 0}
     - target: {fileID: 5799580975468153171, guid: 427f3a066e82747cc96d394bf9121bb3, type: 3}
       propertyPath: m_LocalRotation.w
@@ -6203,6 +6203,14 @@ PrefabInstance:
     - target: {fileID: 5799580975468153171, guid: 427f3a066e82747cc96d394bf9121bb3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 8530548931274798706, guid: 427f3a066e82747cc96d394bf9121bb3, type: 3}
+      propertyPath: totalXPixels
+      value: 1024
+      objectReference: {fileID: 0}
+    - target: {fileID: 8530548931274798706, guid: 427f3a066e82747cc96d394bf9121bb3, type: 3}
+      propertyPath: totalYPixels
+      value: 1024
       objectReference: {fileID: 0}
     - target: {fileID: 8744449345141026589, guid: 427f3a066e82747cc96d394bf9121bb3, type: 3}
       propertyPath: m_Name
