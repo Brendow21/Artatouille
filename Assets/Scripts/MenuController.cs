@@ -12,18 +12,34 @@ public class MenuController : MonoBehaviour
 
     public void ToggleMenu()
     {
+        if(menuOpen) {
+            ClosePanel(panel1);
+            ClosePanel(panel2);
+            ClosePanel(panel3);
+        }
         menuOpen = !menuOpen;
         instructionButtonsGroup.SetActive(menuOpen);
     }
 
     public void TogglePanel(GameObject panel)
     {
-        panel.SetActive(!panel.activeSelf);
+        if(panel.activeSelf) {
+            panel.SetActive(false);
+            return;
+        }
+        CloseAllPanels();
+        panel.SetActive(true);
     }
 
     public void ClosePanel(GameObject panel)
     {
         panel.SetActive(false);
+    }
+
+    private void CloseAllPanels() {
+        ClosePanel(panel1);
+        ClosePanel(panel2);
+        ClosePanel(panel3);
     }
 
 }
