@@ -16,4 +16,8 @@
 
 - Table by Hunter Paramore [CC-BY] via Poly Pizza
 
-- Table by Hunter Paramore [CC-BY] via Poly Pizza
+- Speaker by iPoly3D
+
+- Scifi Pistol by Quaternius
+
+- Sound Effect by freesound_community from Pixabay
