@@ -118,6 +118,9 @@ public class Brush : MonoBehaviour
             case "grey":
                 brushColor = Color.grey;
                 break;
+            case "eraser":
+                brushColor = Color.white;
+                break;
             default:
                 break;
         }
