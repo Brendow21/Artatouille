@@ -2,26 +2,37 @@ using UnityEngine;
 
 /// <summary>
 /// Simplified brush for VR drawing with reliable collision detection.
+/// Now supports both Brush and Paint Roller tools.
 /// </summary>
 public class Brush : MonoBehaviour
 {
+    public enum BrushType { Brush, Roller }
+
     [Header("Brush Properties")]
+    public BrushType toolType = BrushType.Brush;
     public int brushSize = 4;
+    public int rollerSize = 12;
     public Color brushColor = Color.black;
-    
+
     [Header("Brush Setup")]
     public Transform brushTip;
     public LayerMask canvasLayer;
     public float detectionRadius = 0.02f;
     public float rayDistance = 0.1f;
-    
+
     // State tracking
     private Vector3 lastContactPoint;
     private DrawingCanvas currentCanvas;
     private bool isDrawing = false;
-    
+
     private void Start()
     {
+        // Optional: auto-detect tool type based on name
+        if (gameObject.name.ToLower().Contains("roller"))
+        {
+            toolType = BrushType.Roller;
+        }
+
         if (brushTip == null)
         {
             brushTip = new GameObject("BrushTip").transform;
@@ -29,23 +40,21 @@ public class Brush : MonoBehaviour
             brushTip.localPosition = new Vector3(0, 0, 0.1f);
         }
     }
-    
+
     private void Update()
     {
         bool canvasDetected = false;
         Vector3 contactPoint = Vector3.zero;
         DrawingCanvas canvas = null;
+
         if (Physics.CheckSphere(brushTip.position, detectionRadius, canvasLayer))
         {
-            // Find the closest canvas in range
             Collider[] colliders = Physics.OverlapSphere(brushTip.position, detectionRadius, canvasLayer);
-            
-            // Process the closest collider
             if (colliders.Length > 0)
             {
                 Collider closestCollider = colliders[0];
                 canvas = closestCollider.GetComponent<DrawingCanvas>();
-                
+
                 if (canvas != null)
                 {
                     canvasDetected = true;
@@ -53,36 +62,33 @@ public class Brush : MonoBehaviour
                 }
             }
         }
-        
+
         if (canvasDetected && canvas != null)
         {
+            int size = (toolType == BrushType.Roller) ? rollerSize : brushSize;
+
             if (!isDrawing || currentCanvas != canvas)
             {
-                // First contact with this canvas
                 currentCanvas = canvas;
                 lastContactPoint = contactPoint;
                 isDrawing = true;
-                
-                // Draw initial point
-                canvas.DrawAtPosition(contactPoint, brushColor, brushSize);
+
+                canvas.DrawAtPosition(contactPoint, brushColor, size);
             }
             else
             {
-                // Only draw if we've moved enough
                 float distance = Vector3.Distance(lastContactPoint, contactPoint);
-                float minDistance = 0.0005f; // Small threshold for smoother lines
-                
+                float minDistance = 0.0005f;
+
                 if (distance > minDistance)
                 {
-                    // Draw line between points
-                    canvas.DrawLine(lastContactPoint, contactPoint, brushColor, brushSize);
+                    canvas.DrawLine(lastContactPoint, contactPoint, brushColor, size);
                     lastContactPoint = contactPoint;
                 }
             }
         }
         else if (isDrawing)
         {
-            // Lost contact with canvas
             isDrawing = false;
             currentCanvas = null;
         }
