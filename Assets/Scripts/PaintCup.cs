@@ -29,6 +29,7 @@ public class PaintCup : MonoBehaviour
         if (brush != null)
         {
             AddColor(brush.brushColor);
+            brush.brushColor = mixedColor; // Set the brush color to the new mixed color
         }
     }
 
