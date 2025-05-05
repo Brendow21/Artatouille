@@ -13,12 +13,15 @@ public class Brush : MonoBehaviour
     public int brushSize = 4;
     public int rollerSize = 12;
     public Color brushColor = Color.black;
+    public Material brushMaterial;
 
     [Header("Brush Setup")]
     public Transform brushTip;
     public LayerMask canvasLayer;
     public float detectionRadius = 0.02f;
     public float rayDistance = 0.1f;
+
+    public bool canChangeColor;
 
     // State tracking
     private Vector3 lastContactPoint;
@@ -108,8 +111,19 @@ public class Brush : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        string objName = other.gameObject.name.ToLower();
+        if(canChangeColor) {
+            changeColor(other);
+        }
+    }
 
+    public void changeColor(Collider other, Color color) {
+        string objName = other.gameObject.name.ToLower();
+        brushColor = color;
+        brushMaterial.SetColor("_Color", brushColor);
+    }
+
+    public void changeColor(Collider other) {
+        string objName = other.gameObject.name.ToLower();
         switch (objName)
         {
             case "red":
@@ -142,5 +156,6 @@ public class Brush : MonoBehaviour
             default:
                 break;
         }
+        brushMaterial.SetColor("_Color", brushColor);
     }
 }

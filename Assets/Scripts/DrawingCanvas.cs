@@ -14,6 +14,7 @@ public class DrawingCanvas : MonoBehaviour
     // Drawing data
     private Texture2D generatedTexture;
     private Color[] colorMap;
+    private Material ownMaterial;
     
     private void Start()
     {
@@ -23,28 +24,16 @@ public class DrawingCanvas : MonoBehaviour
     
     private void InitializeCanvas()
     {
-        // Initialize texture
         colorMap = new Color[totalXPixels * totalYPixels];
         generatedTexture = new Texture2D(totalXPixels, totalYPixels, TextureFormat.RGBA32, false);
         generatedTexture.filterMode = FilterMode.Point;
         
-        // Apply texture to material
-        if (material != null)
-        {
-            material.SetTexture("_MainTex", generatedTexture);
-        }
-        else
-        {
-            Debug.LogError("No material assigned to DrawingCanvas!");
-            
-            // Try to get from renderer
-            Renderer renderer = GetComponent<Renderer>();
-            if (renderer != null && renderer.material != null)
-            {
-                material = renderer.material;
-                material.SetTexture("_MainTex", generatedTexture);
-            }
-        }
+        ownMaterial = new Material(material);
+        ownMaterial.SetTexture("_MainTex", generatedTexture);
+        
+        // Apply the material to the renderer
+        Renderer renderer = GetComponent<Renderer>();
+        renderer.material = ownMaterial;
     }
     
     /// <summary>

@@ -7,6 +7,7 @@ public class MenuController : MonoBehaviour
     public GameObject panel1;
     public GameObject panel2;
     public GameObject panel3;
+    public GameObject panel4;
 
     private bool menuOpen = false;
 
