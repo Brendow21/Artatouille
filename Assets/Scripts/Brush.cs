@@ -46,6 +46,7 @@ public class Brush : MonoBehaviour
         bool canvasDetected = false;
         Vector3 contactPoint = Vector3.zero;
         DrawingCanvas canvas = null;
+        RulerSnap ruler = FindObjectOfType<RulerSnap>();
 
         if (Physics.CheckSphere(brushTip.position, detectionRadius, canvasLayer))
         {
@@ -66,7 +67,7 @@ public class Brush : MonoBehaviour
         if (canvasDetected && canvas != null)
         {
             int size = (toolType == BrushType.Roller) ? rollerSize : brushSize;
-
+            bool isOnRuler = ruler != null && ruler.IsBrushOnRuler(brushTip.position);
             if (!isDrawing || currentCanvas != canvas)
             {
                 currentCanvas = canvas;
@@ -82,8 +83,19 @@ public class Brush : MonoBehaviour
 
                 if (distance > minDistance)
                 {
-                    canvas.DrawLine(lastContactPoint, contactPoint, brushColor, size);
-                    lastContactPoint = contactPoint;
+                    if (isOnRuler)
+                    {
+                        Vector3 rulerDirection = ruler.transform.right; // Horizontal direction
+                        Vector3 constrainedPoint = lastContactPoint + Vector3.Project(contactPoint - lastContactPoint, rulerDirection);
+                        canvas.DrawLine(lastContactPoint, constrainedPoint, brushColor, size);
+                        lastContactPoint = constrainedPoint;
+
+                    }
+                    else
+                    {
+                        canvas.DrawLine(lastContactPoint, contactPoint, brushColor, size);
+                        lastContactPoint = contactPoint;
+                    }
                 }
             }
         }
